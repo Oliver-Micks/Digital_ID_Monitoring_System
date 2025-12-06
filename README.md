@@ -68,33 +68,38 @@ The database is built on a **3NF Normalized Schema** consisting of 6 core tables
 
 This repository is organized to separate SQL logic, documentation, and BI analytics.
 
-
-your-project-repo/
-├── README.md                  
+├── README.md
+│
 ├── database/
-│   ├── scripts/               # ⚙️ Source SQL Code
-│   │   ├── 01_create_pdb.sql          # Phase 4: PDB Creation
-│   │   ├── 02_create_tables.sql       # Phase 5: Table Structures
-│   │   ├── 03_insert_data.sql         # Phase 5: Sample Data
-│   │   ├── 04_validation_queries.sql  # Phase 5: Integrity Checks
-│   │   └── 05_test_queries.sql        # Phase 6: Logic Testing
-│   └── documentation/         # 📘 DB Setup Docs
-├── queries/                   # 🔍 Reporting & Auditing
+│   ├── scripts/                        ⚙️ Core SQL Scripts
+│   │   ├── 01_create_pdb.sql              # Phase 4 — PDB Creation
+│   │   ├── 02_create_tables.sql           # Phase 5 — Table Structures
+│   │   ├── 03_insert_data.sql             # Phase 5 — Sample Data Population
+│   │   ├── 04_validation_queries.sql      # Phase 5 — Integrity & Validation Checks
+│   │   └── 05_test_queries.sql            # Phase 6 — Logic & Functionality Testing
+│   │
+│   └── documentation/                 📘 DB Setup Documentation
+│
+├── queries/                            🔍 Reporting & Auditing SQL
 │   ├── data_retrieval.sql
 │   ├── analytics_queries.sql
 │   └── audit_queries.sql
-├── business_intelligence/     # 📊 BI Strategy
+│
+├── business_intelligence/              📊 BI Strategy & Dashboards
 │   ├── bi_requirements.md
 │   ├── dashboards.md
 │   └── kpi_definitions.md
-├── screenshots/               # 📸 Proof of Implementation
+│
+├── screenshots/                       📸 Implementation Evidence
 │   ├── oem_monitoring/
 │   ├── database_objects/
 │   └── test_results/
-└── documentation/             # 📚 System Documentation
+│
+└── documentation/                     📚 System-Level Documentation
     ├── data_dictionary.md
     ├── architecture.md
     └── design_decisions.md
+
 
 ## 📚 Documentation & BI
 
@@ -124,12 +129,12 @@ Follow these steps to deploy the project locally.
 1. Oracle Database 21c (XE or Enterprise)
 2. Oracle SQL Developer
 
-## Phase 4: Database Creation
+### Database Creation
 
 1. Open SQL Developer and connect as SYSDBA.
 2. Run database/scripts/01_create_pdb.sql to create the PDB and Admin User.
 
-## Phase 5: Schema Implementation
+### Schema Implementation
 
 1. Connect as digital_id_user.
 2. Run database/scripts/02_create_tables.sql to build the structure.
