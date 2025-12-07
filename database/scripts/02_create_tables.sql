@@ -52,6 +52,11 @@ CREATE TABLE access_audit_log (
     notes        VARCHAR2(400)
 );
 
+--missed some columns :)
+ALTER TABLE access_audit_log ADD source_ip VARCHAR2(50);
+ALTER TABLE access_audit_log ADD request_purpose VARCHAR2(200);
+ALTER TABLE access_audit_log ADD data_category VARCHAR2(50);
+
 -- 6. PRIVACY_VIOLATIONS TABLE
 CREATE TABLE privacy_violations (
     violation_id    NUMBER(12)    PRIMARY KEY,

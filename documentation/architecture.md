@@ -6,22 +6,22 @@ The Digital ID Data Privacy and Access Monitoring System is built on Oracle Data
 ## Architecture Diagram
 
 ┌─────────────────────────────────────────────────────────────┐
-│ CITIZEN INTERFACE LAYER │
+│    CITIZEN INTERFACE LAYER │
 │ (Reports, Transparency Dashboards, Self-Service Portal) │
 └───────────────────────────┬─────────────────────────────────┘
 │
 ┌───────────────────────────▼─────────────────────────────────┐
-│ APPLICATION LAYER │
+│    APPLICATION LAYER │
 │ (PL/SQL Procedures, Functions, Packages, Business Logic) │
 └───────────────────────────┬─────────────────────────────────┘
 │
 ┌───────────────────────────▼─────────────────────────────────┐
-│ DATABASE LAYER │
+│   DATABASE LAYER │
 │ (Tables, Indexes, Views, Triggers, Security Rules) │
 └───────────────────────────┬─────────────────────────────────┘
 │
 ┌───────────────────────────▼─────────────────────────────────┐
-│ INFRASTRUCTURE LAYER │
+│   INFRASTRUCTURE LAYER │
 │ (Oracle 21c PDB, Tablespaces, Storage, Network) │
 └─────────────────────────────────────────────────────────────┘
 
@@ -107,7 +107,6 @@ If invalid → Log access (NO) → Create violation → Block access
 
 Citizen can later view all access attempts in their audit trail
 
-text
 
 ## Security Architecture
 ### Defense in Depth

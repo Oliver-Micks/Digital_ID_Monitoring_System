@@ -83,18 +83,17 @@ END fn_is_holiday;
 -- Function: check DML restriction
 -- Returns: 'ALLOWED' or 'BLOCKED_WEEKDAY' or 'BLOCKED_HOLIDAY'
 CREATE OR REPLACE FUNCTION fn_check_dml_restriction(p_date DATE DEFAULT SYSDATE) RETURN VARCHAR2 IS
-  v_day_num NUMBER;
+  v_day_abbr VARCHAR2(3);
   v_is_holiday BOOLEAN;
 BEGIN
-  v_day_num := TO_NUMBER(TO_CHAR(p_date, 'D')); -- depends on NLS_TERRITORY; acceptable for local tests
+  v_day_abbr := UPPER(TO_CHAR(p_date, 'DY', 'NLS_DATE_LANGUAGE=ENGLISH')); -- MON, TUE, ...
   v_is_holiday := fn_is_holiday(p_date);
 
   IF v_is_holiday THEN
     RETURN 'BLOCKED_HOLIDAY';
   END IF;
 
-  -- In many NLS settings: Monday = 2 ... Friday = 6
-  IF v_day_num BETWEEN 2 AND 6 THEN
+  IF v_day_abbr IN ('MON','TUE','WED','THU','FRI') THEN
     RETURN 'BLOCKED_WEEKDAY';
   END IF;
 
@@ -104,6 +103,25 @@ EXCEPTION
     RETURN 'ERROR';
 END fn_check_dml_restriction;
 /
+
+-- TRIGGER: Hard Block for Weekday/Holiday Restriction 
+CREATE OR REPLACE TRIGGER trg_enforce_restriction
+BEFORE INSERT OR UPDATE OR DELETE ON citizens
+BEGIN
+  DECLARE
+    v_restriction VARCHAR2(20);
+  BEGIN
+    v_restriction := fn_check_dml_restriction(SYSDATE);
+    
+    IF v_restriction = 'BLOCKED_WEEKDAY' THEN
+      RAISE_APPLICATION_ERROR(-20001, '⛔ SECURITY: Data modifications allowed on WEEKENDS only.');
+    ELSIF v_restriction = 'BLOCKED_HOLIDAY' THEN
+      RAISE_APPLICATION_ERROR(-20002, '⛔ SECURITY: Data modifications not allowed on PUBLIC HOLIDAYS.');
+    END IF;
+  END;
+END;
+/
+
 
 -- Compound trigger for citizens table to audit DML attempts
 CREATE OR REPLACE TRIGGER trg_audit_citizen_dml
@@ -197,27 +215,41 @@ END trg_audit_citizen_updates;
 /
 
 -- Trigger: auto-create privacy_violations for unauthorized access attempts
+
 CREATE OR REPLACE TRIGGER trg_auto_create_violation
 AFTER INSERT ON access_audit_log
 FOR EACH ROW
 WHEN (NEW.auth_status = 'NO')
 DECLARE
-  v_violation_id NUMBER;
+    v_severity VARCHAR2(20);
+    v_violation_id NUMBER;
 BEGIN
-  v_violation_id := seq_violation_id.NEXTVAL;
+    -- Generate violation_id from sequence
+    v_violation_id := seq_violation_id.NEXTVAL;
+    
+    -- Determine severity based on after-hours check
+    IF fn_is_after_hours(:NEW.access_time) THEN
+        v_severity := 'HIGH';
+    ELSE
+        v_severity := 'MEDIUM';
+    END IF;
 
-  INSERT INTO privacy_violations (
-    violation_id, audit_id, violation_type, severity, created_at, resolved_status
-  ) VALUES (
-    v_violation_id,
-    :NEW.audit_id,
-    'UNAUTHORIZED_ACCESS_ATTEMPT',
-    CASE WHEN fn_is_after_hours(:NEW.access_time) THEN 'HIGH' ELSE 'MEDIUM' END,
-    SYSTIMESTAMP,
-    'OPEN'
-  );
+    -- Insert violation record with explicit violation_id
+    INSERT INTO privacy_violations (
+        violation_id,
+        audit_id,
+        violation_type,
+        severity,
+        resolved_status
+    ) VALUES (
+        v_violation_id,
+        :NEW.audit_id,
+        'UNAUTHORIZED_ACCESS_ATTEMPT',
+        v_severity,
+        'OPEN'
+    );
 
-  COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Violation ' || v_violation_id || ' created with ' || v_severity || ' severity');
 END trg_auto_create_violation;
 /
 

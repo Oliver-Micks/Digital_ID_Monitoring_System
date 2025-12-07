@@ -5,7 +5,7 @@
 --  - creates helper sequences if missing
 --  - functions: validations, lookups
 --  - procedures: register, validate access, revoke expired permissions, reports
---  - package: audit tools (archive -> copy only)
+--  - package: audit tools 
 -- ============================================================
 
 SET SERVEROUTPUT ON
@@ -23,7 +23,7 @@ EXCEPTION WHEN OTHERS THEN NULL;
 END;
 /
 
--- Create audit_archive table (if missing) - used by archive procedure (copy only)
+-- Create audit_archive table - used by archive procedure 
 BEGIN
   EXECUTE IMMEDIATE '
     CREATE TABLE audit_archive AS
@@ -281,7 +281,7 @@ END sp_active_agencies_report;
 /
 
 -- --------------------------------------------------
--- C. WINDOW / ANALYTIC procedures (kept simple)
+-- C. WINDOW / ANALYTIC procedures 
 -- --------------------------------------------------
 
 CREATE OR REPLACE PROCEDURE sp_rank_agencies_by_violations AS
@@ -417,3 +417,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_audit_tools AS
 
 END pkg_audit_tools;
 /
+--solve some issues on audit_archieve table
+ALTER TABLE audit_archive ADD source_ip VARCHAR2(50);
+ALTER TABLE audit_archive ADD request_purpose VARCHAR2(200);
+ALTER TABLE audit_archive ADD data_category VARCHAR2(50);
