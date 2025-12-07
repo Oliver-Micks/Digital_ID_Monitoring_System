@@ -178,7 +178,7 @@ Full technical details are available in the linked documents below.
 2. **ER Diagram**
    - Complete entity-relationship diagram with cardinalities
    - Primary and foreign key relationships
-   #### ![ER Diagram](/screenshots/database_objects/er_diagram.drawio.jpg)
+   #### ![ER Diagram](/screenshots/database_objects/ER_Diagram_dev.png)
 
 3. **Test Results**
    - Procedure execution outputs with DBMS_OUTPUT
