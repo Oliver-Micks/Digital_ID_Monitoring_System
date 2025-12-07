@@ -187,7 +187,7 @@ Full technical details are available in the linked documents below.
    - Violation detection examples
    #### ![Test Results](/screenshots/test_results/violation_testing.png)
    #### ![Test Results](/screenshots/test_results/violation_table_populated.png)
-   #### [Click to check more test results screenshots](../screenshots/test_results/violation_testing.png)
+   #### [Click to check more test results screenshots](/screenshots/test_results/violation_testing.png)
    
 
 4. **OEM Monitoring**
