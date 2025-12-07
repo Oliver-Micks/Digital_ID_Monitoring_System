@@ -1,209 +1,62 @@
 # System Architecture
 
 ## Overview
-The Digital ID Data Privacy and Access Monitoring System is built on Oracle Database 21c with a multi-tier architecture designed for security, scalability, and maintainability.
+The **Digital ID Data Privacy System** is built on an Oracle Database, using a clear four-layer structure to separate its functions. This design ensures the system is secure, easy to maintain, and ready to grow.
 
-## Architecture Diagram
+---
 
-┌─────────────────────────────────────────────────────────────┐
-│    CITIZEN INTERFACE LAYER │
-│ (Reports, Transparency Dashboards, Self-Service Portal) │
-└───────────────────────────┬─────────────────────────────────┘
-│
-┌───────────────────────────▼─────────────────────────────────┐
-│    APPLICATION LAYER │
-│ (PL/SQL Procedures, Functions, Packages, Business Logic) │
-└───────────────────────────┬─────────────────────────────────┘
-│
-┌───────────────────────────▼─────────────────────────────────┐
-│   DATABASE LAYER │
-│ (Tables, Indexes, Views, Triggers, Security Rules) │
-└───────────────────────────┬─────────────────────────────────┘
-│
-┌───────────────────────────▼─────────────────────────────────┐
-│   INFRASTRUCTURE LAYER │
-│ (Oracle 21c PDB, Tablespaces, Storage, Network) │
-└─────────────────────────────────────────────────────────────┘
+## 1. System Structure
 
+The system is organized into four logical layers, starting from the user interface down to the physical database engine.
 
-## Components Description
+| Layer | What It Does (Role) | Key Components |
+| :--- | :--- | :--- |
+| **4. Interface Layer** | Shows reports and lets citizens manage their data. (Conceptual) | BI Dashboards, Citizen Portal |
+| **3. Application Layer** | **Enforces all the security and business rules.** (Code) | **PL/SQL** Procedures, Functions, Packages |
+| **2. Data Layer** | Stores all the information and security rules. | Tables, Indexes, Triggers, Constraints |
+| **1. Infrastructure Layer** | The core environment where the database runs. | Oracle 21c PDB, Tablespaces, Archive Log |
 
-### 1. Infrastructure Layer
-- **Oracle Database 21c PDB:** `Mon_27119_Olivier_DigitalID_db`
-- **Tablespaces:**
-  - `tbs_data`: Main data storage (200MB initial, autoextend)
-  - `tbs_idx`: Index storage (100MB initial, autoextend)
-  - `temp_digital`: Temporary workspace (100MB)
-- **Users:**
-  - `olivier_admin`: PDB administrator (SYSDBA equivalent for PDB)
-  - `digital_id_user`: Application user with ALL PRIVILEGES
-- **Configuration:**
-  - Archive logging enabled for audit compliance
-  - SGA: 512MB, PGA: 256MB
-  - Automatic maintenance tasks enabled
+---
 
-### 2. Database Layer
-#### Core Tables (6)
-1. **CITIZENS:** Master citizen registry (100+ records)
-2. **GOVERNMENT_AGENCIES:** Authorized entities (RRA, MINISANTE, etc.)
-3. **AGENCY_EMPLOYEES:** System users with credentials
-4. **ACCESS_PERMISSIONS:** Authorization rules
-5. **ACCESS_AUDIT_LOG:** Immutable activity log
-6. **PRIVACY_VIOLATIONS:** Security incident tracking
+## 2. Key Components
 
-#### Security Implementation
-- **Primary Keys:** All tables have numeric PKs
-- **Foreign Keys:** Enforce referential integrity
-- **Check Constraints:** Validate data categories, statuses
-- **Unique Constraints:** Prevent duplicates (phones, usernames)
-- **Default Values:** Auto-populate timestamps, statuses
+### 2.1. Database Engine and Setup (Infrastructure Layer)
+* **Database:** Uses Oracle 21c and is kept separate in a **Pluggable Database (PDB)** called `Mon_27119_Olivier_DigitalID_db`.
+* **Storage:** Data is organized into two areas: `tbs_data` (for citizen records) and `tbs_idx` (for speeding up lookups).
+* **Audit Compliance:** **Archive logging is enabled** to ensure a full history of database changes is kept, which is required for external audits.
 
-### 3. Application Layer (PL/SQL)
-#### Types of PL/SQL Objects
-1. **Stored Procedures:** For data manipulation and business logic
-2. **Functions:** For calculations and validations
-3. **Packages:** For organizing related procedures
-4. **Triggers:** For automatic auditing and enforcement
-5. **Cursors:** For batch processing of data
+### 2.2. Data Storage (Data Layer)
+The system uses six main tables, which are organized to prevent data duplication and errors:
 
-#### Key PL/SQL Components
-- **Access Validation Engine:** Checks permissions before granting access
-- **Audit Logging System:** Automatically records all activities
-- **Violation Detection:** Identifies suspicious patterns
-- **Reporting Engine:** Generates citizen transparency reports
-- **Data Quality Checks:** Ensures data integrity
+* **CITIZENS:** Holds all core identity information.
+* **ACCESS_PERMISSIONS:** The "rulebook" that defines which agency can see what data and until when it expires.
+* **ACCESS_AUDIT_LOG:** The **tamper-proof history** that records every single access attempt (successful or failed).
+* **PRIVACY_VIOLATIONS:** Records all security incidents, like unauthorized access attempts.
 
-### 4. Citizen Interface Layer (Conceptual)
-While this capstone focuses on database implementation, the system is designed to support:
+### 2.3. The Rules and Logic (Application Layer)
+This is where the code (PL/SQL) ensures the system behaves correctly:
 
-#### Future Interfaces
-1. **Citizen Self-Service Portal:**
-   - View who accessed their data
-   - Request access reports
-   - Report suspicious activities
+* **Procedures:** These are used to run complex actions, like checking a request against permissions, logging the result, and then either allowing or blocking the access.
+* **Triggers:** These fire automatically to enforce rules, such as:
+    * Logging every action immediately into `ACCESS_AUDIT_LOG`.
+    * Creating a **Violation** record if access is denied.
+    * **Blocking anyone** from deleting records from the `ACCESS_AUDIT_LOG`.
+* **Reporting:** PL/SQL Packages group together functions that calculate scores (like Agency Compliance) and rank employees (like Top Violators) for the dashboards.
 
-2. **Agency Dashboard:**
-   - Monitor employee access patterns
-   - Generate compliance reports
-   - Manage permissions
+---
 
-3. **Administrator Console:**
-   - System configuration
-   - User management
-   - Security monitoring
+## 3. Data Flow and Security
 
-## Data Flow
-Employee requests access to citizen data
-↓
+### Access Request Flow
+This is the sequence for every data request:
 
-System validates: Employee → Agency → Permission → Expiry
-↓
+1.  **Request:** An Agency Employee asks for a citizen's data.
+2.  **Validation:** The system checks: 1) Does the agency have permission? 2) Is the permission still valid (not expired)?
+3.  **Logging:** The attempt is recorded in the `ACCESS_AUDIT_LOG` immediately.
+4.  **Decision:** Access is either **granted** or **blocked**. If blocked, a **Violation Alert** is also created.
 
-If valid → Log access (YES) → Return data
-↓
-
-If invalid → Log access (NO) → Create violation → Block access
-↓
-
-Citizen can later view all access attempts in their audit trail
-
-
-## Security Architecture
-### Defense in Depth
-1. **Authentication:** Username/password for employees
-2. **Authorization:** Agency-based permission checking
-3. **Auditing:** Complete activity logging
-4. **Validation:** Data type and constraint checking
-5. **Encryption:** Future enhancement for sensitive data
-
-### Principle of Least Privilege
-- Employees only see data their agency is authorized to access
-- Each agency has specific data category permissions
-- No universal admin access in production
-
-## Performance Considerations
-### Indexing Strategy
-- Primary keys indexed automatically
-- Foreign keys indexed manually
-- Frequently queried columns indexed
-- Large text columns not indexed
-
-### Query Optimization
-- Use WHERE clauses to limit result sets
-- Proper JOIN conditions for efficient queries
-- Aggregate functions for summary data
-- Partitioning ready for future scaling
-
-## Scalability Design
-### Current Implementation
-- 100 citizens (demonstration scale)
-- 7 agencies (realistic sample)
-- 21 employees (3 per agency)
-- Designed for easy scaling
-
-### Future Scalability
-- Horizontal scaling: Add more PDBs
-- Vertical scaling: Increase resources
-- Partitioning: By district or date
-- Caching: Frequently accessed data
-
-## Backup and Recovery
-### Built-in Features
-- Archive logging enabled
-- Regular backup capability
-- Point-in-time recovery possible
-- Data export/import scripts included
-
-### Disaster Recovery
-- Database scripts recreate entire structure
-- Sample data scripts repopulate test data
-- Documentation enables quick restoration
-
-## Compliance Features
-### GDPR Principles Implemented
-1. **Right to Access:** Citizens can see who accessed their data
-2. **Right to be Informed:** Transparent logging
-3. **Data Minimization:** Only necessary data collected
-4. **Storage Limitation:** Permissions have expiry dates
-5. **Integrity and Confidentiality:** Security measures in place
-
-### Audit Requirements Met
-- Immutable audit trail
-- Tamper-proof logging
-- Complete activity history
-- Automated violation detection
-
-## Technology Stack
-| **Component** | **Technology** | **Version** |
-|---------------|----------------|-------------|
-| Database | Oracle Database | 21c |
-| Development | PL/SQL | 21c |
-| IDE | SQL Developer / VS Code | Latest |
-| Version Control | Git / GitHub | Latest |
-| Documentation | Markdown | Standard |
-
-## Deployment Architecture
-### Development Environment
-- Local Oracle 21c installation
-- SQL Developer for database access
-- VS Code for script development
-- Git for version control
-
-### Production Readiness
-- Script-based deployment
-- Environment-agnostic configuration
-- Comprehensive error handling
-- Rollback capability
-
-## Monitoring and Maintenance
-### Built-in Monitoring
-- Row counts validation
-- Constraint checking
-- Performance metrics
-- Error logging
-
-### Maintenance Procedures
-- Permission expiry management
-- Audit log archiving
-- User account management
-- Data quality checks
+### Security Principles
+* **Immutable Auditing:** The `ACCESS_AUDIT_LOG` cannot be changed or deleted, ensuring complete accountability.
+* **Permission Control:** Access is automatically removed when the `EXPIRY_DATE` is reached.
+* **Least Privilege:** Employees can only use the data their agency is specifically authorized for.
+* **After-Hours Detection:** The system flags any data access happening late at night (e.g., after 8 PM) as higher risk.
