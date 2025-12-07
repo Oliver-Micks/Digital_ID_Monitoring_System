@@ -4,6 +4,7 @@
 The Digital ID Data Privacy and Access Monitoring System is built on Oracle Database 21c with a multi-tier architecture designed for security, scalability, and maintainability.
 
 ## Architecture Diagram
+
 ┌─────────────────────────────────────────────────────────────┐
 │ CITIZEN INTERFACE LAYER │
 │ (Reports, Transparency Dashboards, Self-Service Portal) │
