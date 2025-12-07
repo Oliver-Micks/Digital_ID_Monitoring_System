@@ -14,9 +14,9 @@
 
 | Field | Detail |
 |:---|:---|
-| **Student Name** | **Olivier** |
+| **Student Name** | **Byiringiro Niyonagize Olivier** |
 | **Student ID** | **27119** |
-| **Group** | Monday |
+| **Group** | Monday (A) |
 | **Lecturer** | Eric Maniraguha |
 | **Database PDB** | `Mon_27119_Olivier_DigitalID_db` |
 
@@ -163,7 +163,7 @@ Full technical details are available in the linked documents below.
 |:---|:---|
 | **Data Dictionary** | Detailed breakdown of all 6 tables, columns, data types, and constraints |
 | **System Architecture** | High-level design diagrams (ERD) and relationship explanations |
-| **Design Decisions** | Justification for Option B (agency-level), 3NF normalization, security logic |
+| **Design Decisions** | Justification for the design, 3NF normalization, security logic |
 | **BI Requirements** | KPI definitions and dashboard mockups for decision support |
 
 ---
@@ -178,7 +178,7 @@ Full technical details are available in the linked documents below.
 2. **ER Diagram**
    - Complete entity-relationship diagram with cardinalities
    - Primary and foreign key relationships
-   #### [ER Diagram](/screenshots/database_objects/er_diagram.drawio.jpg)
+   #### ![ER Diagram](/screenshots/database_objects/er_diagram.drawio.jpg)
 
 3. **Test Results**
    - Procedure execution outputs with DBMS_OUTPUT
@@ -215,13 +215,12 @@ Follow these steps to deploy the project locally.
 1. Connect as `digital_id_user`
 2. Run `database/scripts/02_create_tables.sql` to build the structure
 3. Run `database/scripts/03_insert_data.sql` to load 100+ sample records
-4. Run `database/scripts/04_validation_queries.sql` to confirm data integrity
+4. Run `database/scripts/04_validation.sql` to confirm data integrity
 
 ### Step 3: PL/SQL Logic
 
-1. Run `database/scripts/05_plsql_logic.sql` to create procedures, functions, packages
-2. Run `database/scripts/06_triggers_audit.sql` to implement business rules
-3. Run `database/scripts/07_window_functions.sql` for advanced analytics
+1. Run `database/scripts/05_procedures_functions.sql` to create procedures, functions, packages
+2. Run `database/scripts/06_triggers.sql` to implement business rules
 
 ### Step 4: Testing
 
