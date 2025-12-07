@@ -148,8 +148,8 @@ Digital_ID_Monitoring_System/
 │
 └── documentation/                               # 📚 System-Level Documentation
     ├── data_dictionary.md                       # All tables, columns, constraints
-    ├── architecture.md                          # Design decisions
-    └── design_decisions.md                      # Why Option B & other choices
+    ├── architecture.md                          # Architecture overview
+    └── design_decisions.md                      # Reasons to choosing the design & other choices
 ```
 
 ---
@@ -174,6 +174,7 @@ Full technical details are available in the linked documents below.
 1. **Database Objects** (SQL Developer)
    - Tables list showing all 6 core tables
    - Procedures, functions, and packages in Object Navigator
+   #### ![Database](/screenshots/database_objects/tables_list.png)
    
 2. **ER Diagram**
    - Complete entity-relationship diagram with cardinalities
@@ -189,6 +190,7 @@ Full technical details are available in the linked documents below.
    - Database performance metrics
    - Session monitoring
    - Storage usage
+   #### ![OEM Monitoring](/screenshots/oem_monitoring/oem_dashboard.png)
 
 ---
 
